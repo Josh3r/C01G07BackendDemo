@@ -36,6 +36,15 @@ const database = {
             entries: 21,
             joined: new Date(),
             expertise: 'software'
+        },
+        {
+            id: '456',
+            name: 'Sandeep', 
+            email: 'donaldTrump@potus.com',
+            password: 'trump',
+            entries: 668,
+            joined: new Date(),
+            expertise: 'others'
         }
     ],
     login: [
@@ -56,7 +65,7 @@ app.post('/form',(req,res)=>{
             res.json("We are connecting you with this agent: "+agent.name.toString())
         }
         else{
-            res.json("Sorry, no suitable agent is available as of now, please come back later")
+            res.status(400).json("Sorry, no suitable agent is available as of now, please come back later")
         }
     })    
 })
