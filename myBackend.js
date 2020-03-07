@@ -26,7 +26,8 @@ const database = {
             password: 'Mahalo',
             entries: 0,
             joined: new Date(),
-            expertise: 'hardware'
+            expertise: 'hardware',
+            available: false
         },
         {
             id: '21',
@@ -35,7 +36,8 @@ const database = {
             password: 'barmitzvah',
             entries: 21,
             joined: new Date(),
-            expertise: 'software'
+            expertise: 'software',
+            available: true
         },
         {
             id: '456',
@@ -44,9 +46,11 @@ const database = {
             password: 'trump',
             entries: 668,
             joined: new Date(),
-            expertise: 'others'
+            expertise: 'others',
+            available: true
         }
     ],
+    // Possible future feature: Storage of customer details and history?
     login: [
         {
             id: '987',
@@ -56,16 +60,30 @@ const database = {
     ]
 }
 
+const validTopics = set('software','hardware','others');
+
 // The most important endpoint for this demo, the form endpoint, which includes the routing functionality
 app.post('/form',(req,res)=>{
+    let msg = '';
     const {email,name,topic,urgency} = req.body; //Destructuring
     database.agents.forEach((agent)=>{
         if(agent.expertise==topic){
             console.log(name,topic);
-            res.json("We are connecting you with this agent: "+agent.name.toString())
+            if(agent.available){
+                msg = "We are connecting you with this agent: "+agent.name.toString();
+                break;
+            } else{
+                msg = "We are sorry, but no suitable agents are available right now, please come back later";
+            }
         }
         else{
-            res.status(400).json("Sorry, no suitable agent is available as of now, please come back later")
+            if(msg!==''){
+                continue;
+            }
+            if(!validTopics.has(topic)){
+                msg = "Please re-check your form, there are missing/ invalid details";
+            }
         }
+        res.json(msg);
     })    
 })
