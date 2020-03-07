@@ -60,30 +60,29 @@ const database = {
     ]
 }
 
-const validTopics = set('software','hardware','others');
+const validTopics = new Set('software','hardware','others');
 
 // The most important endpoint for this demo, the form endpoint, which includes the routing functionality
 app.post('/form',(req,res)=>{
     let msg = '';
+    let stop = NaN;
     const {email,name,topic,urgency} = req.body; //Destructuring
+    if(!validTopics.has(topic)){
+        msg = "Please re-check your form, there are missing/ invalid details";
+    }
     database.agents.forEach((agent)=>{
         if(agent.expertise==topic){
-            console.log(name,topic);
-            if(agent.available){
+            //console.log(name,topic);
+            if(agent.available===true){
+                console.log(agent.name);
                 msg = "We are connecting you with this agent: "+agent.name.toString();
-                break;
-            } else{
+                res.json(msg);
+                stop = true;
+            } else if (stop!==true){
                 msg = "We are sorry, but no suitable agents are available right now, please come back later";
             }
         }
-        else{
-            if(msg!==''){
-                continue;
-            }
-            if(!validTopics.has(topic)){
-                msg = "Please re-check your form, there are missing/ invalid details";
-            }
-        }
-        res.json(msg);
-    })    
+        
+    })
+    res.json(msg);    
 })
