@@ -7,8 +7,8 @@ let options = {
         host: "sandbox"
     },
     credentials: {
-        login: "teo.josh@yahoo.com.sg", // To replace by your developer credendials
-        password: "Halo123117!" // To replace by your developer credentials
+        login: "--Censored--", // To replace by your developer credendials
+        password: "--Censored--!" // To replace by your developer credentials
     },
     // Application identifier
     application: {
