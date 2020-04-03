@@ -1,6 +1,10 @@
+const express  = require('express');
+const bcrypt = require('bcrypt-nodejs');
+const cors = require('cors');
+const validator = require("email-validator");
 // Load the SDK
 let RainbowSDK = require("rainbow-node-sdk");
-
+/*-----------------------------------------------------------*/
 // Define your configuration
 let options = {
     rainbow: {
@@ -40,30 +44,57 @@ let options = {
         sendReadReceipt: true
     }
 };
+/*------------------------------------------------*/
+
+const app = express(); // We init our express app
+// We host our app on port:3000
+app.listen(3000,()=>{
+    console.log('running!');
+})
+app.use(cors()); // Using cors
+// Parsing json so we can understand json req
+app.use(express.json()) // We use app.use() middleware
+
+// Here's our first endpoint, for the index page
+app.get('/',(req,res)=>{
+    res.json("Up and running")
+});
+global.retirevedInfo = false;
+
+
 
 // Instantiate the SDK
 let rainbowSDK = new RainbowSDK(options);
 rainbowSDK.stop();
-// Start the SDK
-rainbowSDK.start();
-rainbowSDK.events.on('rainbow_onready', function() {
-    // do something when the SDK is connected to Rainbow
-    console.log("Connected!","color:red");
+    // Start the SDK~
+    rainbowSDK.start();
+
+
+app.post('/form',(req,res)=>{
+    // Deconstruct to retrieve the necessary info
+    let {guestFirstName,guestLastName,agentFirstName,agentLastName} = req.body;
+    global.guestFirstName,global.guestLastName,global.agentFirstName,global.agentLastName = guestFirstName,guestLastName,agentFirstName,agentLastName;
+    global.retirevedInfo = true;
+    res.json("Retrieved required information, thank you!");
 
     // Creation of bubbles (non-invite method)
-    let withHistory = true; // Allow newcomers to have access to the bubble messages since the creation of the bubble
-    const testBubble = rainbowSDK.bubbles.createBubble("testBubble", "A little description of my bubble", withHistory).then(function(bubble) {
+    let withHistory = false; // Allow newcomers to have access to the bubble messages since the creation of the bubble
+    console.log("Creating bubble now:");
+    const testBubble = rainbowSDK.bubbles.createBubble("thisIsNew", "A little description of my bubble", withHistory).then(function(bubble) {
         // do something with the bubble created
+        console.log(bubble);
         console.log("Bubble has been created!","color:red");
+        console.log(guestFirstName,guestLastName,agentFirstName,agentLastName);
+        //console.log(bubble.name);
         // We do something similar for users, except that GUEST accounts are created for them
-        let guestFirstname = "Jean";
-        let guestLastname = "Dupont";
         let language = "en-US";
         let ttl = 86400 // active for a day
 
-        let testUser = rainbowSDK.admin.createGuestUser(guestFirstname, guestLastname, language, ttl).then((guest) => {
+        let testUser = rainbowSDK.admin.createGuestUser(guestFirstName, guestLastName, language, ttl).then((guest) => {
             // Do something when the guest has been created and added to that company`
+            //console.log(rainbowSDK.bubbles.getAllPendingBubbles());
             console.log("User successfully created!","color:red");
+            //console.log(guest);
             // Inviting users to bubbles via contact
             let invitedAsModerator1 = false;     // To set to true if you want to invite someone as a moderator
             let sendAnInvite1 = true;            // To set to false if you want to add someone to a bubble without having to invite him first
@@ -78,7 +109,7 @@ rainbowSDK.events.on('rainbow_onready', function() {
             });
         }).catch((err) => {
             // Do something in case of error
-            console.log(err);
+            //console.log(err);
             console.log("An error occured in user-creation!","color:red");
         });
         /*console.log("Bubble has been created!","color:red");
@@ -86,8 +117,6 @@ rainbowSDK.events.on('rainbow_onready', function() {
         -
         */
         // We do something similar for users, except that GUEST accounts are created for them
-        let agentFirstName = "Dupont";
-        let agentLastName = "Jean";
         let language2 = "en-US";
         let ttl2 = 86400 // active for a day
 
@@ -110,6 +139,8 @@ rainbowSDK.events.on('rainbow_onready', function() {
             // Do something in case of error
             console.log("An error occured in agent-creation!","color:red");
         });
+
+
     }).catch(function(err) {
         // do something if the creation of the bubble failed (eg. providing the same name as an existing bubble)
         console.log("There was an error in bubble-creation!","color:red");
@@ -117,25 +148,6 @@ rainbowSDK.events.on('rainbow_onready', function() {
 
 });
 
-/*
-rainbowSDK.events.on('rainbow_onerror', function(err) {
-    // do something when something goes wrong
-    console.log("An error has ocurred");
-});
-
-// This function is for when a ONE TO ONE message is recieved 
-rainbowSDK.events.on('rainbow_onmessagereceived', function(message) {
-    // test if the message comes from a bubble of from a conversation with one participant
-    if(message.type == "groupchat") {
-        // Send the answer to the bubble
-        messageSent = rainbowSDK.im.sendMessageToBubbleJid('The message answer', message.fromBubbleJid);
-    }
-    else {
-        // send the answer to the user directly otherwise   
-        messageSent = rainbowSDK.im.sendMessageToJid('The message answer', message.fromJid);
-    }
-});
-*/
 
 
 
@@ -153,26 +165,9 @@ Your Node.JS transmit the credentials to the front-end application (This part is
 The front-end application uses the SDK for Android, IOS or SDK for Web with these credentials and connects to Rainbow
 */
 
-
-
-
-
-
-/*
-// Just leave this here for error handling
-let invitedAsModerator2 = true;     // To set to true if you want to invite someone as a moderator
-let sendAnInvite2 = true;            // To set to false if you want to add someone to a bubble without having to invite him first
-let inviteReason2 = "bot-invite";    // Define a reason for the invite (part of the invite received by the recipient)
-
-rainbowSDK.bubbles.inviteContactToBubble(testAgent, aBubble, invitedAsModerator2, sendAnInvite2, inviteReason2).then(function(bubbleUpdated) {
-    // do something with the invite sent
-    console.log("Invited user","color:red");    
-}).catch(function(err) {
-    // do something if the invitation failed (eg. bad reference to a buble)
-    console.log("Error in inviting user","color:red");
-});
-*/
-
+app.get('/mybubble',(req,res)=>{
+    res.json(rainbowSDK.bubbles.getAll());
+})
 
 // Creating and inviting users into the bubble
 let utc = new Date().toJSON().replace(/-/g, '/');
@@ -184,6 +179,8 @@ rainbowSDK.bubbles.createBubble("TestInviteByEmails" + utc, "TestInviteByEmails"
       console.log("Invited!");
    });
 });
+
+
 
 
 // Finally, we close it of:
