@@ -12,7 +12,7 @@ let options = {
     },
     credentials: {
         login: "", // To replace by your developer credendials
-        password: "!" // To replace by your developer credentials
+        password: "" // To replace by your developer credentials
     },
     // Application identifier
     application: {
@@ -72,10 +72,18 @@ rainbowSDK.stop();
 
 app.post('/form',(req,res)=>{
     // Deconstruct to retrieve the necessary info
+    /*
     let {guestFirstName,guestLastName,agentFirstName,agentLastName} = req.body;
     global.guestFirstName,global.guestLastName,global.agentFirstName,global.agentLastName = guestFirstName,guestLastName,agentFirstName,agentLastName;
     global.retirevedInfo = true;
-    res.json("Retrieved required information, thank you!");
+    //res.json("Retrieved required information, thank you!");
+    */
+    // Generate user credentials
+    let guestFirstName = "First";
+    let guestLastName = "Last";
+    let agentFirstName = "John";
+    let agentLastName = "Smith";
+
 
     // Creation of bubbles (non-invite method)
     let withHistory = false; // Allow newcomers to have access to the bubble messages since the creation of the bubble
@@ -95,6 +103,12 @@ app.post('/form',(req,res)=>{
             //console.log(rainbowSDK.bubbles.getAllPendingBubbles());
             console.log("User successfully created!","color:red");
             //console.log(guest);
+            // Retrieve the required details for the customer to login and talk to the agent
+            let returnObj = {
+                login_email:guest.loginEmail,
+                password:guest.password
+            };
+            res.json(returnObj);
             // Inviting users to bubbles via contact
             let invitedAsModerator1 = false;     // To set to true if you want to invite someone as a moderator
             let sendAnInvite1 = true;            // To set to false if you want to add someone to a bubble without having to invite him first
