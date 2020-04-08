@@ -48,7 +48,7 @@ let options = {
 
 const app = express(); // We init our express app
 // We host our app on port:3000
-app.listen(3000,()=>{
+app.listen(3001,()=>{
     console.log('running!');
 })
 app.use(cors()); // Using cors
@@ -79,6 +79,7 @@ app.post('/form',(req,res)=>{
     //res.json("Retrieved required information, thank you!");
     */
     // Generate user credentials
+    let {answers} = req.body;
     let guestFirstName = "First";
     let guestLastName = "Last";
     let agentFirstName = "John";
@@ -106,7 +107,8 @@ app.post('/form',(req,res)=>{
             // Retrieve the required details for the customer to login and talk to the agent
             let returnObj = {
                 login_email:guest.loginEmail,
-                password:guest.password
+                password:guest.password,
+                quizAns: answers
             };
             res.json(returnObj);
             // Inviting users to bubbles via contact
